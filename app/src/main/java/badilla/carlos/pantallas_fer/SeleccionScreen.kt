@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -28,15 +30,22 @@ import badilla.carlos.pantallas_fer.ui.theme.Pantallas_ferTheme
 @Composable
 fun SeleccionScreen(
     opciones: List<OpcionSeleccion>,
-    onContinuar: (Int) -> Unit,
+    onContinuar: (Int, String) -> Unit,
     onRegresar: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var seleccionadoId by rememberSaveable { mutableStateOf<Int?>(null) }
+    var otraUniversidadTexto by rememberSaveable { mutableStateOf("") }
 
     val azulOscuro = Color(0xFF0F172A)
     val grisFondoSeleccion = Color(0xFFE2E8F0)
     val grisBordeTarjeta = Color(0xFFCBD5E1)
+
+    val puedeContinuar = when {
+        seleccionadoId == null -> false
+        seleccionadoId == 99 -> otraUniversidadTexto.isNotBlank()
+        else -> true
+    }
 
     Column(
         modifier = modifier
@@ -46,10 +55,9 @@ fun SeleccionScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        // Encabezado
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(top = 40.dp)
+            modifier = Modifier.padding(top = 16.dp, bottom = 16.dp)
         ) {
             Text(
                 text = "Bienvenido",
@@ -57,7 +65,7 @@ fun SeleccionScreen(
                 fontWeight = FontWeight.Bold,
                 color = azulOscuro
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = "Selecciona quién eres",
                 fontSize = 16.sp,
@@ -72,86 +80,98 @@ fun SeleccionScreen(
             )
         }
 
-        // Tarjetas
-        Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.fillMaxWidth()
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
         ) {
-            opciones.forEach { opcion ->
+            items(opciones) { opcion ->
                 val estaSeleccionado = seleccionadoId == opcion.id
 
-                Card(
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (estaSeleccionado) grisFondoSeleccion else Color.White
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(
-                            width = 1.dp,
-                            color = if (estaSeleccionado) azulOscuro else grisBordeTarjeta,
-                            shape = RoundedCornerShape(16.dp)
-                        )
-                        .clickable { seleccionadoId = opcion.id }
-                ) {
-                    Row(
+                Column {
+                    Card(
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (estaSeleccionado) grisFondoSeleccion else Color.White
+                        ),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                            .border(
+                                width = 1.dp,
+                                color = if (estaSeleccionado) azulOscuro else grisBordeTarjeta,
+                                shape = RoundedCornerShape(16.dp)
+                            )
+                            .clickable { seleccionadoId = opcion.id }
                     ) {
                         Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(14.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(1f)
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Image(
-                                painter = painterResource(id = opcion.icono),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                            )
-                            Spacer(modifier = Modifier.width(16.dp))
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Image(
+                                    painter = painterResource(id = opcion.icono),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(40.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
 
-                            Column {
-                                Text(
-                                    text = opcion.titulo,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 15.sp,
-                                    color = azulOscuro
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(
-                                    text = opcion.descripcion,
-                                    fontSize = 11.sp,
-                                    color = Color.Gray,
-                                    lineHeight = 14.sp
-                                )
+                                Column {
+                                    Text(
+                                        text = opcion.titulo,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 15.sp,
+                                        color = azulOscuro
+                                    )
+                                    Spacer(modifier = Modifier.height(2.dp))
+                                    Text(
+                                        text = opcion.descripcion,
+                                        fontSize = 11.sp,
+                                        color = Color.Gray,
+                                        lineHeight = 14.sp
+                                    )
+                                }
                             }
-                        }
 
-                        RadioButton(
-                            selected = estaSeleccionado,
-                            onClick = { seleccionadoId = opcion.id },
-                            colors = RadioButtonDefaults.colors(
-                                selectedColor = azulOscuro,
-                                unselectedColor = azulOscuro
+                            RadioButton(
+                                selected = estaSeleccionado,
+                                onClick = { seleccionadoId = opcion.id },
+                                colors = RadioButtonDefaults.colors(
+                                    selectedColor = azulOscuro,
+                                    unselectedColor = azulOscuro
+                                )
                             )
+                        }
+                    }
+
+                    if (estaSeleccionado && opcion.id == 99) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = otraUniversidadTexto,
+                            onValueChange = { otraUniversidadTexto = it },
+                            label = { Text("Nombre de tu universidad") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
                         )
                     }
                 }
             }
         }
 
-        // Botones de Navegación Inferiores
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 16.dp),
+                .padding(top = 16.dp, bottom = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            // Flecha Izquierda
             IconButton(
                 onClick = onRegresar,
                 modifier = Modifier
@@ -165,18 +185,20 @@ fun SeleccionScreen(
                 )
             }
 
-            // Flecha Derecha
             IconButton(
                 onClick = {
-                    if (seleccionadoId != null) {
-                        onContinuar(seleccionadoId!!)
+                    if (puedeContinuar) {
+                        onContinuar(
+                            seleccionadoId!!,
+                            if (seleccionadoId == 99) otraUniversidadTexto else ""
+                        )
                     }
                 },
-                enabled = seleccionadoId != null,
+                enabled = puedeContinuar,
                 modifier = Modifier
                     .size(56.dp)
                     .background(
-                        color = if (seleccionadoId != null) azulOscuro else Color.LightGray,
+                        color = if (puedeContinuar) azulOscuro else Color.LightGray,
                         shape = CircleShape
                     )
             ) {
@@ -190,7 +212,6 @@ fun SeleccionScreen(
     }
 }
 
-// Flechas dibujadas por código vectorizado (sin errores de paquetes)
 val FlechaIzquierdaIcon: ImageVector
     get() = ImageVector.Builder(
         name = "FlechaIzquierda",
@@ -245,7 +266,7 @@ fun SeleccionScreenPreview() {
     Pantallas_ferTheme {
         SeleccionScreen(
             opciones = opcionesTipoUniversidad,
-            onContinuar = {},
+            onContinuar = { _, _ -> },
             onRegresar = {}
         )
     }
