@@ -49,6 +49,7 @@ class MainActivity : ComponentActivity() {
                                 onRegresar = {
                                     pantallaActual = 1
                                 },
+                                esUltimaPantalla = true,
                                 modifier = Modifier.padding(innerPadding)
                             )
                         }
@@ -62,6 +63,7 @@ class MainActivity : ComponentActivity() {
                                 onRegresar = {
                                     pantallaActual = 1
                                 },
+                                esUltimaPantalla = true,
                                 modifier = Modifier.padding(innerPadding)
                             )
                         }
